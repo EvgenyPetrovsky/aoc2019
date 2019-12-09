@@ -66,7 +66,6 @@ day02_modify_input <- function(input, v1, v2) {
 #' solution of Day 2 part 1
 #'
 #' @export
-#' @param input input vector
 day02_part1_solution <- function() {
   DATASET$day02 %>% day02_modify_input(12, 2) %>% day02()
 }
