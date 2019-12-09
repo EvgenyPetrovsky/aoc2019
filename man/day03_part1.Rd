@@ -2,15 +2,15 @@
 % Please edit documentation in R/day03.R
 \name{day03_part1}
 \alias{day03_part1}
-\title{Fund find closest intersection of 2 wires defined by instruction sets}
+\title{Fund find closest (manhettan distance) intersection of 2 wires defined by instruction sets}
 \usage{
 day03_part1(instructions1, instructions2)
 }
 \arguments{
-\item{instruction1}{instructions to build path 1}
+\item{instructions1}{instructions to build path 1}
 
-\item{instruction2}{instructions to build path 2}
+\item{instructions2}{instructions to build path 2}
 }
 \description{
-Fund find closest intersection of 2 wires defined by instruction sets
+Fund find closest (manhettan distance) intersection of 2 wires defined by instruction sets
 }

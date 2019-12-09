@@ -6,9 +6,6 @@
 \usage{
 day02_part2_solution()
 }
-\arguments{
-\item{input}{input vector}
-}
 \description{
 solution of Day 2 part 1
 }

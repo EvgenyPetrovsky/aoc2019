@@ -8,6 +8,10 @@ day02_modify_input(input, v1, v2)
 }
 \arguments{
 \item{input}{input vector of integers}
+
+\item{v1}{value to place into 2nd element of input vector}
+
+\item{v2}{value to place into 3rd element of input vector}
 }
 \description{
 puzzle requires input modification

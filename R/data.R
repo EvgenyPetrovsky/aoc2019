@@ -1,4 +1,4 @@
-#' Input Datasets
+#' Input DATASETs
 #'
-#' This list contains all datasets of Advent of Code 2019 event
+#' This list contains all DATASETs of Advent of Code 2019 event
 "DATASET"

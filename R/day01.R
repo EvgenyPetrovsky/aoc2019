@@ -11,7 +11,7 @@ day01_fuel <- function(mass) {
 #'
 #' @export
 day01_part1_solution <- function() {
-  DATASET$day01 %>% day01_fuel() %>% sum()
+  aoc19::DATASET$day01 %>% day01_fuel() %>% sum()
 }
 
 #' fuel adjustment on fuel itself
@@ -27,5 +27,5 @@ day01_fuelrec <- function(fuel_mass) {
 #'
 #' @export
 day01_part2_solution <- function() {
-  DATASET$day01 %>% day01_fuel() %>% sapply(FUN = day01_fuelrec, USE.NAMES = F) %>% sum()
+  aoc19::DATASET$day01 %>% day01_fuel() %>% sapply(FUN = day01_fuelrec, USE.NAMES = F) %>% sum()
 }

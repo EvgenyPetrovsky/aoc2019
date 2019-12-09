@@ -84,7 +84,6 @@ day03_deltapath <- function(current_pos, direction, steps) {
 #' Build path from starting point
 #'
 #' Returns data frame with coordinates of path
-#' @export
 #' @param instructions vector of step insructions like "R75","D30","R83"
 #' @param start_point vector of 2 values representing starting point for path
 day03_fullpath <- function(instructions, start_point = day03_centralpoint) {
@@ -111,11 +110,10 @@ day03_intersection <- function(path1, path2) {
   merge(p1, p2, by = c("x", "y"))
 }
 
-#' Fund find closest intersection of 2 wires defined by instruction sets
+#' Fund find closest (manhettan distance) intersection of 2 wires defined by instruction sets
 #'
-#' @export
-#' @param instruction1 instructions to build path 1
-#' @param instruction2 instructions to build path 2
+#' @param instructions1 instructions to build path 1
+#' @param instructions2 instructions to build path 2
 day03_part1 <- function(instructions1, instructions2) {
   path1 <- day03_fullpath(instructions = instructions1)
   path2 <- day03_fullpath(instructions = instructions2)
@@ -135,16 +133,15 @@ day03_part1 <- function(instructions1, instructions2) {
 #'
 #' @export
 day03_part1_solution <- function() {
-  i1 <- DATASET$day03$w1
-  i2 <- DATASET$day03$w2
+  i1 <- aoc19::DATASET$day03$w1
+  i2 <- aoc19::DATASET$day03$w2
   day03_part1(i1, i2)
 }
 
-#' Fund find closest intersection of 2 wires defined by instruction sets
+#' Find shortest (wire length) intersection of 2 wires defined by instruction sequences
 #'
-#' @export
-#' @param instruction1 instructions to build path 1
-#' @param instruction2 instructions to build path 2
+#' @param instructions1 instructions to build path 1
+#' @param instructions2 instructions to build path 2
 day03_part2 <- function(instructions1, instructions2) {
   path1 <- day03_fullpath(instructions = instructions1)
   path1$n1 <- 1:nrow(path1) - 1
@@ -162,7 +159,7 @@ day03_part2 <- function(instructions1, instructions2) {
 #'
 #' @export
 day03_part2_solution <- function() {
-  i1 <- DATASET$day03$w1
-  i2 <- DATASET$day03$w2
+  i1 <- aoc19::DATASET$day03$w1
+  i2 <- aoc19::DATASET$day03$w2
   day03_part2(i1, i2)
 }

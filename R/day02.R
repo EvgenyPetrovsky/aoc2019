@@ -2,7 +2,6 @@
 #'
 #' Function takes vector of values and returns modified vector
 #'
-#' @export
 #' @param input vector of integer values
 day02 <- function(input) {
   #
@@ -51,8 +50,9 @@ day02 <- function(input) {
 
 #' puzzle requires input modification
 #'
-#' @export
 #' @param input input vector of integers
+#' @param v1 value to place into 2nd element of input vector
+#' @param v2 value to place into 3rd element of input vector
 day02_modify_input <- function(input, v1, v2) {
   temp <- input
 
@@ -67,32 +67,30 @@ day02_modify_input <- function(input, v1, v2) {
 #'
 #' @export
 day02_part1_solution <- function() {
-  DATASET$day02 %>% day02_modify_input(12, 2) %>% day02()
+  aoc19::DATASET$day02 %>% day02_modify_input(12, 2) %>% day02()
 }
 
 #' find combination of word and noun
 #'
-#' @export
 #' @param input input
 #' @param expected_result expected result
 day02_noun_verb <- function(input, expected_result) {
   grid <- expand.grid(noun = 0:99, verb = 0:99)
   fun <- function(noun, verb) {
-    input <- DATASET$day02 %>% day02_modify_input(noun, verb)
+    input <- aoc19::DATASET$day02 %>% day02_modify_input(noun, verb)
     res <- day02(input)
     res[1]
   }
   grid$res <- mapply(FUN = fun, grid$noun, grid$verb, USE.NAMES = F)
-  res <- subset(grid, res == expected_result) %>% head(1)
+  res <- subset(grid, res == expected_result) %>% utils::head(1)
   c(res$noun, res$verb)
 }
 
 #' solution of Day 2 part 1
 #'
 #' @export
-#' @param input input vector
 day02_part2_solution <- function() {
-  verb_noun <- DATASET$day02 %>% day02_noun_verb(expected_result = 19690720)
+  verb_noun <- aoc19::DATASET$day02 %>% day02_noun_verb(expected_result = 19690720)
   noun <- verb_noun[1]; verb <- verb_noun[2]
   res <- 100 * noun + verb
   res

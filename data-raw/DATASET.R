@@ -1,4 +1,4 @@
-## code to prepare `DATASET` dataset goes here
+## code to prepare `DATASET` DATASET goes here
 DATASET <- list()
 DATASET$day01 <-
   c(148216,142030,129401,74642,108051,54128,145495,67818,120225,67113,

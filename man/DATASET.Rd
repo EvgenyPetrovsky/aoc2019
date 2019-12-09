@@ -3,12 +3,12 @@
 \docType{data}
 \name{DATASET}
 \alias{DATASET}
-\title{Input Datasets}
+\title{Input DATASETs}
 \format{An object of class \code{list} of length 3.}
 \usage{
 DATASET
 }
 \description{
-This list contains all datasets of Advent of Code 2019 event
+This list contains all DATASETs of Advent of Code 2019 event
 }
 \keyword{datasets}
