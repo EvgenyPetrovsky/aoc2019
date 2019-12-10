@@ -4,9 +4,31 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "echo",
+            "label": "build",
             "type": "shell",
-            "command": "echo Hello"
+            "command": "R -e 'devtools::document(quiet = F); devtools::install(quiet = F)'",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "check",
+            "type": "shell",
+            "command": "R -e 'devtools::check(quiet = T)'",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "R -e 'devtools::test(quiet = T)'",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
