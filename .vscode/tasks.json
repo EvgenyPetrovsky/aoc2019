@@ -4,27 +4,36 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "Build project",
             "type": "shell",
-            "command": "R -e 'devtools::document(quiet = F); devtools::install(quiet = F)'",
+            "command": "R -q -e 'devtools::document(quiet = F); devtools::install(quiet = F)'",
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
         },
         {
-            "label": "check",
+            "label": "Check project",
             "type": "shell",
-            "command": "R -e 'devtools::check(quiet = T)'",
+            "command": "R -q -e 'devtools::check(quiet = T)'",
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
         },
         {
-            "label": "test",
+            "label": "Test project",
             "type": "shell",
-            "command": "R -e 'devtools::test(quiet = T)'",
+            "command": "R -q -e 'devtools::test(quiet = T)'",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Import data into project",
+            "type": "shell",
+            "command": "R -q -e 'for (file in dir(\"./data-raw\", full.names = TRUE)) source(file)'",
             "group": {
                 "kind": "build",
                 "isDefault": true
