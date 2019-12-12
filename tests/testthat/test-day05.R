@@ -20,8 +20,12 @@ test_that("instruction operation is correctly identified", {
 test_that("instruction length is correctly identified", {
   len <- day05_intruct_length
   expect_equal(len(1101), 4)
-  expect_equal(len(3), 2)
+  expect_equal(len(1), 4)
+  expect_equal(len(101), 4)
   expect_equal(len(1102), 4)
+  expect_equal(len(2), 4)
+  expect_equal(len(102), 4)
+  expect_equal(len(3), 2)
   expect_equal(len(104), 2)
   expect_equal(len(99), 1)
   expect_error(len(177), message = "unknown operation")

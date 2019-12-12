@@ -9,10 +9,11 @@ day05_intruct_op <- function(instruction) {
     stop(message)
   }
   op_code <- substr(instruction_code, n-1, n)
-  if (!op_code %in% names(INTCODE$opcode)) {
-    message <- paste("invalid operation code:", opcode)
+  if (!op_code %in% names(aoc19::INTCODE$opcode)) {
+    message <- paste("invalid operation code:", op_code)
     stop(message)
   }
+  op_code
 }
 
 #' add two numbers
@@ -69,8 +70,12 @@ day05_diagnostic <- function() {
     NULL
 }
 
+#' Length of instruction - how many registers belong to instruction
+#'
+#' @param instruction instruction integer code
 day05_intruct_length <- function(instruction) {
-  NULL
+  op_code <- day05_intruct_op(instruction) 
+  INTCODE$opcode[[op_code]]
 }
 
 day05_instruct_par_mode <- function(instruction) {
