@@ -76,7 +76,7 @@ day05_diagnostic <- function() {
 #' @param instruction instruction integer code
 day05_intruct_length <- function(instruction) {
   op_code <- day05_intruct_op(instruction)
-  INTCODE$opcode[[op_code]]
+  aoc19::INTCODE$opcode[[op_code]]
 }
 
 #' instruction parameter modes
