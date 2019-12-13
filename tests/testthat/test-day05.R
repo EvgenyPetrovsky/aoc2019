@@ -68,9 +68,9 @@ test_that("mul operation performs as a sum", {
 
 test_that("read operation reads from buffer", {
   expect_equal(day05_opread(c(3,4,5,6)), list(3, c(4,5,6)))
-  expect_equal(day05_opread(c(3,4,5,6)), list(4, c(4,5)))
-  expect_equal(day05_opread(c(3,4,5,6)), list(5, c(6)))
-  expect_equal(day05_opread(c(3,4,5,6)), list(6, c()))
+  expect_equal(day05_opread(c(4,5,6)), list(4, c(4,5)))
+  expect_equal(day05_opread(c(5,6)), list(5, c(6)))
+  expect_equal(day05_opread(c(6)), list(6, c()))
 })
 
 test_that("write operation writes to buffer", {

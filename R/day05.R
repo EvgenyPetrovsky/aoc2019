@@ -1,5 +1,6 @@
+
 #' decode instruction to identify operation
-#' 
+#'
 #' @param instruction instruction code: integer value or digital code
 day05_intruct_op <- function(instruction) {
   instruction_code <- paste0("0",instruction)
@@ -43,7 +44,7 @@ day05_opread  <- function(in_buffer) {
   }
 }
 
-# return result / print output
+# return result (print output)
 #'
 #' @param v value
 #' @param out_buffer destination vector of values
@@ -74,10 +75,46 @@ day05_diagnostic <- function() {
 #'
 #' @param instruction instruction integer code
 day05_intruct_length <- function(instruction) {
-  op_code <- day05_intruct_op(instruction) 
+  op_code <- day05_intruct_op(instruction)
   INTCODE$opcode[[op_code]]
 }
 
+#' instruction parameter modes
+#'
+#' @export
+#' @param instruction instruction integer code
 day05_instruct_par_mode <- function(instruction) {
-  NULL
+  calculate_mode <- function(par_position) {
+    # parameter modes go in reversed order and start at position 3
+    u <- 10^(par_position + 1 + 1)
+    d <- 10^(par_position + 1)
+    (instruction %% u) %/% d
+  }
+  op_code <- day05_intruct_op(instruction)
+  numpar <- day05_intruct_length(instruction) - 1
+  res <- sapply(
+    FUN = calculate_mode,
+    X = 1:numpar, USE.NAMES = F)
+  validate <- function(par_position, mode) {
+    valid_mode <- list(
+      "01" = list(c(0,1), c(0,1), c(0)),
+      "02" = list(c(0,1), c(0,1), c(0)),
+      "03" = list(c(0)),
+      "04" = list(c(0,1)),
+      "99" = NULL
+    )
+    if (mode %in% valid_mode[[op_code]][[par_position]]) {
+      mode
+    } else {
+      message <- paste(
+        "invalide mode:", mode, 
+        "for parameter position", par_position,
+        "in operation", op_code
+        )
+      stop(message)
+    }
+  }
+  1:length(res) %>% sapply(
+    FUN = function(x) validate(x, res[x]), 
+    USE.NAMES = FALSE)
 }
