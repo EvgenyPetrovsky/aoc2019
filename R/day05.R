@@ -36,7 +36,7 @@ day05_opmul   <- function(v1, v2) {
 #' read input
 #'
 #' @param in_buffer vector of values to be read
-day05_opread  <- function(in_buffer) {
+day05_opinput  <- function(in_buffer) {
   if (length(in_buffer) >= 1) {
     v <- in_buffer[1]
     new_buffer <- in_buffer[-1]
@@ -48,7 +48,7 @@ day05_opread  <- function(in_buffer) {
 #'
 #' @param v value
 #' @param out_buffer destination vector of values
-day05_opwrite <- function(v, out_buffer) {
+day05_opoutput <- function(v, out_buffer) {
   c(out_buffer, v)
 }
 
@@ -59,8 +59,8 @@ day05_decodeop <- function(opcode) {
   decode_table <- list(
     "01" = day05_opsum,
     "02" = day05_opmul,
-    "03" = day05_opread,
-    "04" = day05_opwrite,
+    "03" = day05_opinput,
+    "04" = day05_opoutput,
     "99" = NULL
   )
   decode_table[[opcode]]
@@ -96,13 +96,7 @@ day05_instruct_par_mode <- function(instruction) {
     FUN = calculate_mode,
     X = 1:numpar, USE.NAMES = F)
   validate <- function(par_position, mode) {
-    valid_mode <- list(
-      "01" = list(c(0,1), c(0,1), c(0)),
-      "02" = list(c(0,1), c(0,1), c(0)),
-      "03" = list(c(0)),
-      "04" = list(c(0,1)),
-      "99" = NULL
-    )
+    valid_mode <- aoc19::INTCODE$valid_mode
     if (mode %in% valid_mode[[op_code]][[par_position]]) {
       mode
     } else {
@@ -117,4 +111,35 @@ day05_instruct_par_mode <- function(instruction) {
   1:length(res) %>% sapply(
     FUN = function(x) validate(x, res[x]), 
     USE.NAMES = FALSE)
+}
+
+#' Get value
+#'
+#' @param mode parameter mode (read from array or show exact value)
+#' @param pointer pointer to element in array or exact value
+#' @param array array of intcodes
+day05_getv <- function(mode, pointer, array) {
+  if (mode == 1) {
+    pointer
+  } else if (mode == 0) {
+    if (pointer < 0 | pointer >= length(array)) {
+      stop("pointer =", pointer, "refers out of range")
+    } else {
+      array[pointer + 1]
+    }
+  }
+}
+
+#' Set value
+#'
+#' @param value parameter value
+#' @param pointer pointer to element in array or exact value
+#' @param array array of intcodes
+day05_setv <- function(value, pointer, array) {
+  if (pointer < 0 | pointer >= length(array)) {
+    stop("pointer =", pointer, "refers out of range")
+  } else {
+    array[pointer + 1] <- value
+    array
+  }
 }
