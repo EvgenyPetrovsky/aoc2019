@@ -31,6 +31,18 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
+            },
+            "problemMatcher": {
+                //"owner": "cpp",
+                "fileLocation": ["relative", "${workspaceFolder}/tests/testthat"],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+:)?\\s+(warning|error|failure):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
             }
         },
         {
