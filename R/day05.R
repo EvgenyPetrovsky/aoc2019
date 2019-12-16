@@ -212,6 +212,6 @@ day05_diagnostic <- function(input_buffer, array) {
 #' @export
 day05_part1_solution <- function() {
   input_buffer <- c(1)
-  input_array  <- DATASET$day05
+  input_array  <- aoc19::DATASET$day05
   day05_diagnostic(input_buffer, input_array)
 }
