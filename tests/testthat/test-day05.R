@@ -50,46 +50,89 @@ test_that("instruction parameter modes are properly identified", {
   expect_error(mode(103), message = "invalid mode")
 })
 
-test_that("sum operation performs as a sum", {
-  expect_equal(day05_opsum(0, 1), 1)
-  expect_equal(day05_opsum(1, 1), 2)
-  expect_equal(day05_opsum(0, -1), -1)
-  expect_equal(day05_opsum(-1, -1), -2)
-  expect_equal(day05_opsum(123, -456), -333)
+test_that("sum operation in intcode array performs correctly", {
+  make_sum <- function(pointer, in_buffer, out_buffer) {
+    function(array) {
+      v <- day05_opsum(pointer, array, in_buffer, out_buffer)
+      v$array
+    }
+  }
+  opsum <- make_sum(0, c(1), c(1))
+  # 1 + 1
+  expect_equal(opsum(c(1101,1,1,5,99,0)), c(1101,1,1,5,99,2))
+  # 5 + 4
+  expect_equal(opsum(c(1101,5,4,5,99,0)), c(1101,5,4,5,99,9))
+  # 5 + 5
+  expect_equal(opsum(c(1,3,3,5,99,0)), c(1,3,3,5,99,10))
+  # 1 + 99
+  expect_equal(opsum(c(1,0,4,5,99,0)), c(1,0,4,5,99,100))
 })
 
 test_that("mul operation performs as a sum", {
-  expect_equal(day05_opmul(0, 1), 0 * 1)
-  expect_equal(day05_opmul(1, 1), 1 * 1)
-  expect_equal(day05_opmul(1, -1), 1 * -1)
-  expect_equal(day05_opmul(-1, -1), -1 * -1)
-  expect_equal(day05_opmul(123, -456), 123 * -456)
+  make_mul <- function(pointer, in_buffer, out_buffer) {
+    function(array) {
+      v <- day05_opmul(pointer, array, in_buffer, out_buffer)
+      v$array
+    }
+  }
+  opmul <- make_mul(0, c(1), c(1))
+  # 1 * 1
+  expect_equal(opmul(c(1101,1,1,5,99,0)), c(1101,1,1,5,99,1))
+  # 5 * 4
+  expect_equal(opmul(c(1101,5,4,5,99,0)), c(1101,5,4,5,99,20))
+  # 5 * 5
+  expect_equal(opmul(c(1,3,3,5,99,0)), c(1,3,3,5,99,25))
+  # 1 * 99
+  expect_equal(opmul(c(1,0,4,5,99,0)), c(1,0,4,5,99,99))
 })
 
 test_that("read operation reads from buffer", {
-  expect_equal(day05_opinput(c(3,4,5,6)), list(3, c(4,5,6)))
-  expect_equal(day05_opinput(c(4,5,6)), list(4, c(5, 6)))
-  expect_equal(day05_opinput(c(5,6)), list(5, c(6)))
-  expect_equal(day05_opinput(c(6)), list(6, numeric()))
+  expect_equal(
+    day05_opinput(0, array = c(3,4,99,0,0), in_buffer = c(13,14,15,16), c(1)),
+    list(array = c(3,4,99,0,13), in_buffer = c(14,15,16), out_buffer = c(1)))
+  expect_equal(
+    day05_opinput(0, array = c(3,4,99,0,0), in_buffer = c(14,15,16), c(1)), 
+    list(array = c(3,4,99,0,14), in_buffer = c(15,16), out_buffer = c(1)))
+  expect_equal(
+    day05_opinput(0, array = c(3,4,99,0,0), in_buffer = c(15,16), c(1)), 
+    list(array = c(3,4,99,0,15), in_buffer = c(16), out_buffer = c(1)))
+  expect_equal(
+    day05_opinput(0, array = c(3,4,99,0,0), in_buffer = c(16), c(1)), 
+    list(array = c(3,4,99,0,16), in_buffer = numeric(), out_buffer = c(1)))
+  expect_error(
+    day05_opinput(0, array = c(3,4,99,0,0), in_buffer = numeric(), c(1)),
+    message = "input buffer"
+  )
 })
 
 test_that("write operation writes to buffer", {
-  expect_equal(day05_opoutput(3, c()), c(3))
-  expect_equal(day05_opoutput(4, c(3)), c(3,4))
-  expect_equal(day05_opoutput(5, c(3,4)), c(3,4,5))
-  expect_equal(day05_opoutput(6, c(3,4,5)), c(3,4,5,6))
+  expect_equal(
+    day05_opoutput(0, array = c(104,4,99,0,0), c(1), numeric()), 
+    list(array = c(104,4,99,0,0), in_buffer = c(1), out_buffer = c(4)))
+  expect_equal(
+    day05_opoutput(0, array = c(4,4,99,0,2), c(1), c(4)), 
+    list(array = c(4,4,99,0,2), in_buffer = c(1), out_buffer = c(4,2)))
+  expect_equal(
+    day05_opoutput(0, array = c(4,2,99,0,2), c(1), c(4,2)), 
+    list(array = c(4,2,99,0,2), in_buffer = c(1), out_buffer = c(4,2,99)))
+  expect_equal(
+    day05_opoutput(0, array = c(4,0,99,0,2), c(1), c(4,2,99)), 
+    list(array = c(4,0,99,0,2), in_buffer = c(1), out_buffer = c(4,2,99,4)))
 })
 
 test_that("get value operation works as expected", {
-  test_set <- c(11, 12, 13, 14, 15)
+  test_set <- c(5, 6, 7, 8, 9, 11, 12, 13, 14, 15)
   expect_equal(day05_getv(mode = 0, pointer = 0, array = test_set), 11)
   expect_equal(day05_getv(mode = 0, pointer = 1, array = test_set), 12)
   expect_equal(day05_getv(mode = 0, pointer = 2, array = test_set), 13)
-  expect_equal(day05_getv(mode = 1, pointer = 0, array = test_set), 0)
-  expect_equal(day05_getv(mode = 1, pointer = 3, array = test_set), 3)
-  expect_equal(day05_getv(mode = 1, pointer = 4, array = test_set), 4)
+  expect_equal(day05_getv(mode = 1, pointer = 0, array = test_set), 5)
+  expect_equal(day05_getv(mode = 1, pointer = 3, array = test_set), 8)
+  expect_equal(day05_getv(mode = 1, pointer = 4, array = test_set), 9)
   expect_error(
-    day05_getv(mode = 0, pointer = 9, array = test_set),
+    day05_getv(mode = 0, pointer = 5, array = test_set),
+    message = "out of range")
+  expect_error(
+    day05_getv(mode = 1, pointer = 19, array = test_set),
     message = "out of range")
 })
 

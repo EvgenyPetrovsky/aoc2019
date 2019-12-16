@@ -4,10 +4,16 @@
 \alias{day05_opinput}
 \title{read input}
 \usage{
-day05_opinput(in_buffer)
+day05_opinput(pointer, array, in_buffer, out_buffer)
 }
 \arguments{
+\item{pointer}{current position of instruction}
+
+\item{array}{incode array}
+
 \item{in_buffer}{vector of values to be read}
+
+\item{out_buffer}{vector of output}
 }
 \description{
 read input

@@ -2,10 +2,10 @@
 % Please edit documentation in R/day04.R
 \name{day04_part2_solution}
 \alias{day04_part2_solution}
-\title{Day 04 part 1 solution}
+\title{Day 04 part 2 solution}
 \usage{
 day04_part2_solution()
 }
 \description{
-Day 04 part 1 solution
+Day 04 part 2 solution
 }

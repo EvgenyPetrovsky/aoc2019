@@ -1,4 +1,3 @@
-
 #' decode instruction to identify operation
 #'
 #' @param instruction instruction code: integer value or digital code
@@ -19,37 +18,67 @@ day05_intruct_op <- function(instruction) {
 
 #' add two numbers
 #'
-#' @param v1 value 1
-#' @param v2 value 2
-day05_opsum   <- function(v1, v2) {
-  v1 + v2
+#' @param pointer pointer
+#' @param array array
+#' @param in_buffer input array
+#' @param out_buffer output array
+day05_opsum   <- function(pointer, array, in_buffer, out_buffer) {
+  instruction_code <- day05_getv(mode = 1, pointer + 0, array)
+  modes <- day05_instruct_par_mode(instruction_code)
+  v1 <- day05_getv(mode = modes[1], pointer + 1, array)
+  v2 <- day05_getv(mode = modes[2], pointer + 2, array)
+  rp <- day05_getv(mode = 1, pointer + 3, array)
+  new_array <- day05_setv(value = (v1 + v2), rp, array)
+  list(array = new_array, in_biffer = in_buffer, out_buffer = out_buffer)
 }
 
 #' multiply two numbers
 #'
-#' @param v1 value 1
-#' @param v2 value 2
-day05_opmul   <- function(v1, v2) {
-  v1 * v2
+#' @param pointer current position of instruction
+#' @param array incode array
+#' @param in_buffer vector of values to be read
+#' @param out_buffer vector of output
+day05_opmul   <- function(pointer, array, in_buffer, out_buffer) {
+  instruction_code <- day05_getv(mode = 1, pointer + 0, array)
+  modes <- day05_instruct_par_mode(instruction_code)
+  v1 <- day05_getv(mode = modes[1], pointer + 1, array)
+  v2 <- day05_getv(mode = modes[2], pointer + 2, array)
+  rp <- day05_getv(mode = 1, pointer + 3, array)
+  new_array <- day05_setv(value = (v1 * v2), rp, array)
+  list(array = new_array, in_biffer = in_buffer, out_buffer = out_buffer)
 }
 
 #' read input
 #'
+#' @param pointer current position of instruction
+#' @param array incode array
 #' @param in_buffer vector of values to be read
-day05_opinput  <- function(in_buffer) {
+#' @param out_buffer vector of output
+day05_opinput  <- function(pointer, array, in_buffer, out_buffer) {
   if (length(in_buffer) >= 1) {
     v <- in_buffer[1]
-    new_buffer <- in_buffer[-1]
-    list(v, new_buffer)
+    new_in_buffer <- in_buffer[-1]
+    rp <- day05_getv(mode = 1, pointer + 1, array)
+    new_array <- day05_setv(value = v, pointer = rp, array)
+    list(array = new_array, in_buffer = new_in_buffer, out_buffer = out_buffer)
+  } else {
+    message <- "empty input buffer"
+    stop(message)
   }
 }
 
-# return result (print output)
+#' return result (print output)
 #'
-#' @param v value
-#' @param out_buffer destination vector of values
-day05_opoutput <- function(v, out_buffer) {
-  c(out_buffer, v)
+#' @param pointer current position of instruction
+#' @param array incode array
+#' @param in_buffer vector of values to be read
+#' @param out_buffer vector of output
+day05_opoutput <- function(pointer, array, in_buffer, out_buffer) {
+  instruction_code <- day05_getv(mode = 1, pointer + 0, array)
+  modes <- day05_instruct_par_mode(instruction_code)
+  v <- day05_getv(mode = modes[1], pointer + 1, array)
+  new_out_buffer <- c(out_buffer, v)
+    list(array = array, in_buffer = in_buffer, out_buffer = new_out_buffer)
 }
 
 #' Decode operation
@@ -66,11 +95,6 @@ day05_decodeop <- function(opcode) {
   decode_table[[opcode]]
 }
 
-
-day05_diagnostic <- function() {
-    NULL
-}
-
 #' Length of instruction - how many registers belong to instruction
 #'
 #' @param instruction instruction integer code
@@ -81,7 +105,6 @@ day05_intruct_length <- function(instruction) {
 
 #' instruction parameter modes
 #'
-#' @export
 #' @param instruction instruction integer code
 day05_instruct_par_mode <- function(instruction) {
   calculate_mode <- function(par_position) {
@@ -101,7 +124,7 @@ day05_instruct_par_mode <- function(instruction) {
       mode
     } else {
       message <- paste(
-        "invalide mode:", mode, 
+        "invalide mode:", mode,
         "for parameter position", par_position,
         "in operation", op_code
         )
@@ -109,7 +132,7 @@ day05_instruct_par_mode <- function(instruction) {
     }
   }
   1:length(res) %>% sapply(
-    FUN = function(x) validate(x, res[x]), 
+    FUN = function(x) validate(x, res[x]),
     USE.NAMES = FALSE)
 }
 
@@ -119,14 +142,15 @@ day05_instruct_par_mode <- function(instruction) {
 #' @param pointer pointer to element in array or exact value
 #' @param array array of intcodes
 day05_getv <- function(mode, pointer, array) {
+  if (pointer < 0 | pointer >= length(array)) {
+    stop("pointer =", pointer, "refers out of range")
+  }
+  value <- array[pointer + 1]
   if (mode == 1) {
-    pointer
+    value
   } else if (mode == 0) {
-    if (pointer < 0 | pointer >= length(array)) {
-      stop("pointer =", pointer, "refers out of range")
-    } else {
-      array[pointer + 1]
-    }
+    new_pointer <- value
+    day05_getv(mode = 1, new_pointer, array)
   }
 }
 
@@ -142,4 +166,52 @@ day05_setv <- function(value, pointer, array) {
     array[pointer + 1] <- value
     array
   }
+}
+
+#' run diagnostics on INTCODE computer
+#'
+#' @param input_buffer buffer of input values
+#' @param array INCODE array
+day05_diagnostic <- function(input_buffer, array) {
+  pos <- 0
+  temp <- array
+  output_buffer <- c()
+
+  #
+  next_pos <- function(pos, instruct_code) {
+    pos + day05_intruct_length(instruct_code)
+  }
+  getinstr <- function(pos) day05_getv(mode = 1, pointer = pos, array = temp)
+  getopcode <- day05_intruct_op
+  decodeop <- day05_decodeop
+  getparmodes <- day05_instruct_par_mode
+
+  #
+  while (pos %>% getinstr() %>% getopcode() != 99) {
+
+    instruction_code <- getinstr(pos + 0)
+    op_code <- getopcode(instruction_code)
+
+    operation <- decodeop(op_code)
+    res <- operation(
+      pointer = pos, array = temp,
+      in_buffer = input_buffer, out_buffer = output_buffer)
+    temp <- res$array
+    input_buffer <- res$in_buffer
+    output_buffer <- res$out_buffer
+
+    pos <- next_pos(pos, instruction_code)
+
+  }
+
+  output_buffer
+}
+
+#' Day 05 part 1 solution
+#'
+#' @export
+day05_part1_solution <- function() {
+  input_buffer <- c(1)
+  input_array  <- DATASET$day05
+  day05_diagnostic(input_buffer, input_array)
 }

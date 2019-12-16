@@ -4,12 +4,16 @@
 \alias{day05_opsum}
 \title{add two numbers}
 \usage{
-day05_opsum(v1, v2)
+day05_opsum(pointer, array, in_buffer, out_buffer)
 }
 \arguments{
-\item{v1}{value 1}
+\item{pointer}{pointer}
 
-\item{v2}{value 2}
+\item{array}{array}
+
+\item{in_buffer}{input array}
+
+\item{out_buffer}{output array}
 }
 \description{
 add two numbers

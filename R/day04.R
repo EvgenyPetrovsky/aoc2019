@@ -98,7 +98,7 @@ day04_filteradj2 <- function(number) {
 
 }
 
-#' Day 04 part 1 solution
+#' Day 04 part 2 solution
 #'
 #' @export
 day04_part2_solution <- function() {
