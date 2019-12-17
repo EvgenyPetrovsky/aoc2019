@@ -151,3 +151,7 @@ test_that("mode in write operation works as expected", {
     day05_setv(value = 1, pointer = 5, array = test_set),
     message = "out of range")
 })
+
+test_that("solution part 1 returns correct result", {
+  expect_equal(day05_part1_solution(), c(0,0,0,0,0,0,0,0,0,13087969))
+})
