@@ -29,7 +29,11 @@ day05_opsum   <- function(pointer, array, in_buffer, out_buffer) {
   v2 <- day05_getv(mode = modes[2], pointer + 2, array)
   rp <- day05_getv(mode = 1, pointer + 3, array)
   new_array <- day05_setv(value = (v1 + v2), rp, array)
-  list(array = new_array, in_biffer = in_buffer, out_buffer = out_buffer)
+  new_pointer <- pointer + day05_intruct_length(instruction_code)
+  # result
+  list(
+    pointer = new_pointer, array = new_array,
+    in_buffer = in_buffer, out_buffer = out_buffer)
 }
 
 #' multiply two numbers
@@ -45,7 +49,11 @@ day05_opmul   <- function(pointer, array, in_buffer, out_buffer) {
   v2 <- day05_getv(mode = modes[2], pointer + 2, array)
   rp <- day05_getv(mode = 1, pointer + 3, array)
   new_array <- day05_setv(value = (v1 * v2), rp, array)
-  list(array = new_array, in_biffer = in_buffer, out_buffer = out_buffer)
+  new_pointer <- pointer + day05_intruct_length(instruction_code)
+  # result
+  list(
+    pointer = new_pointer, array = new_array,
+    in_buffer = in_buffer, out_buffer = out_buffer)
 }
 
 #' read input
@@ -55,12 +63,17 @@ day05_opmul   <- function(pointer, array, in_buffer, out_buffer) {
 #' @param in_buffer vector of values to be read
 #' @param out_buffer vector of output
 day05_opinput  <- function(pointer, array, in_buffer, out_buffer) {
+  instruction_code <- day05_getv(mode = 1, pointer + 0, array)
   if (length(in_buffer) >= 1) {
     v <- in_buffer[1]
     new_in_buffer <- in_buffer[-1]
     rp <- day05_getv(mode = 1, pointer + 1, array)
     new_array <- day05_setv(value = v, pointer = rp, array)
-    list(array = new_array, in_buffer = new_in_buffer, out_buffer = out_buffer)
+    new_pointer <- pointer + day05_intruct_length(instruction_code)
+    # result
+    list(
+      pointer = new_pointer, array = new_array,
+      in_buffer = new_in_buffer, out_buffer = out_buffer)
   } else {
     message <- "empty input buffer"
     stop(message)
@@ -78,7 +91,98 @@ day05_opoutput <- function(pointer, array, in_buffer, out_buffer) {
   modes <- day05_instruct_par_mode(instruction_code)
   v <- day05_getv(mode = modes[1], pointer + 1, array)
   new_out_buffer <- c(out_buffer, v)
-    list(array = array, in_buffer = in_buffer, out_buffer = new_out_buffer)
+  new_pointer <- pointer + day05_intruct_length(instruction_code)
+  # result
+  list(
+    pointer = new_pointer, array = array,
+    in_buffer = in_buffer, out_buffer = new_out_buffer)
+}
+
+#' move pointer if frist parameter is non-zero
+#'
+#' @param pointer pointer
+#' @param array array
+#' @param in_buffer input array
+#' @param out_buffer output array
+day05_jumpiftrue <- function(pointer, array, in_buffer, out_buffer) {
+  instruction_code <- day05_getv(mode = 1, pointer + 0, array)
+  modes <- day05_instruct_par_mode(instruction_code)
+  # instruction parameter values
+  v1 <- day05_getv(mode = modes[1], pointer + 1, array)
+  v2 <- day05_getv(mode = modes[2], pointer + 2, array)
+  # move pointer if 1st parameter non-zero
+  new_pointer <- 
+    if (v1 != 0) {v2} else {pointer + day05_intruct_length(instruction_code)}
+  # result
+  list(
+    pointer = new_pointer, array = array,
+    in_buffer = in_buffer, out_buffer = out_buffer)
+}
+
+#' move pointer if frist parameter is zero
+#'
+#' @param pointer pointer
+#' @param array array
+#' @param in_buffer input array
+#' @param out_buffer output array
+day05_jumpiffalse <- function(pointer, array, in_buffer, out_buffer) {
+  instruction_code <- day05_getv(mode = 1, pointer + 0, array)
+  modes <- day05_instruct_par_mode(instruction_code)
+  # instruction parameter values
+  v1 <- day05_getv(mode = modes[1], pointer + 1, array)
+  v2 <- day05_getv(mode = modes[2], pointer + 2, array)
+  # move pointer if 1st parameter non-zero
+  new_pointer <- 
+    if (v1 == 0) {v2} else {pointer + day05_intruct_length(instruction_code)}
+  # result
+  list(
+    pointer = new_pointer, array = array,
+    in_buffer = in_buffer, out_buffer = out_buffer)
+}
+
+
+#' move pointer if frist parameter is less than second
+#'
+#' @param pointer pointer
+#' @param array array
+#' @param in_buffer input array
+#' @param out_buffer output array
+day05_oneifless <- function(pointer, array, in_buffer, out_buffer) {
+  instruction_code <- day05_getv(mode = 1, pointer + 0, array)
+  modes <- day05_instruct_par_mode(instruction_code)
+  # instruction parameter values
+  v1 <- day05_getv(mode = modes[1], pointer + 1, array)
+  v2 <- day05_getv(mode = modes[2], pointer + 2, array)
+  rp <- day05_getv(mode = 1, pointer + 3, array)
+
+  new_array <- day05_setv(value = 1 * (v1 < v2), rp, array)
+  new_pointer <- pointer + day05_intruct_length(instruction_code)
+  # result
+  list(
+    pointer = new_pointer, array = new_array,
+    in_buffer = in_buffer, out_buffer = out_buffer)
+}
+
+#' move pointer if frist parameter is equal to second
+#'
+#' @param pointer pointer
+#' @param array array
+#' @param in_buffer input array
+#' @param out_buffer output array
+day05_oneifequal <- function(pointer, array, in_buffer, out_buffer) {
+  instruction_code <- day05_getv(mode = 1, pointer + 0, array)
+  modes <- day05_instruct_par_mode(instruction_code)
+  # instruction parameter values
+  v1 <- day05_getv(mode = modes[1], pointer + 1, array)
+  v2 <- day05_getv(mode = modes[2], pointer + 2, array)
+  rp <- day05_getv(mode = 1, pointer + 3, array)
+
+  new_array <- day05_setv(value = 1 * (v1 == v2), rp, array)
+  new_pointer <- pointer + day05_intruct_length(instruction_code)
+  # result
+  list(
+    pointer = new_pointer, array = new_array,
+    in_buffer = in_buffer, out_buffer = out_buffer)
 }
 
 #' Decode operation
@@ -90,6 +194,10 @@ day05_decodeop <- function(opcode) {
     "02" = day05_opmul,
     "03" = day05_opinput,
     "04" = day05_opoutput,
+    "05" = day05_jumpiftrue,
+    "06" = day05_jumpiffalse,
+    "07" = day05_oneifless,
+    "08" = day05_oneifequal,
     "99" = NULL
   )
   decode_table[[opcode]]
@@ -124,9 +232,10 @@ day05_instruct_par_mode <- function(instruction) {
       mode
     } else {
       message <- paste(
-        "invalide mode:", mode,
+        "invalid mode:", mode,
         "for parameter position", par_position,
-        "in operation", op_code
+        "in operation", op_code,
+        "instruction", instruction
         )
       stop(message)
     }
@@ -184,23 +293,24 @@ day05_diagnostic <- function(input_buffer, array) {
   getinstr <- function(pos) day05_getv(mode = 1, pointer = pos, array = temp)
   getopcode <- day05_intruct_op
   decodeop <- day05_decodeop
-  getparmodes <- day05_instruct_par_mode
 
-  #
+  # main loop via intructions
   while (pos %>% getinstr() %>% getopcode() != 99) {
 
     instruction_code <- getinstr(pos + 0)
     op_code <- getopcode(instruction_code)
-
     operation <- decodeop(op_code)
+
+    # incocate specialized operation
     res <- operation(
       pointer = pos, array = temp,
       in_buffer = input_buffer, out_buffer = output_buffer)
-    temp <- res$array
-    input_buffer <- res$in_buffer
-    output_buffer <- res$out_buffer
 
-    pos <- next_pos(pos, instruction_code)
+    temp          <- res$array
+    input_buffer  <- res$in_buffer
+    output_buffer <- res$out_buffer
+    # and finally new pointer
+    pos           <- res$pointer
 
   }
 
@@ -212,6 +322,15 @@ day05_diagnostic <- function(input_buffer, array) {
 #' @export
 day05_part1_solution <- function() {
   input_buffer <- c(1)
+  input_array  <- aoc19::DATASET$day05
+  day05_diagnostic(input_buffer, input_array)
+}
+
+#' Day 05 part 2 solution
+#'
+#' @export
+day05_part2_solution <- function() {
+  input_buffer <- c(5)
   input_array  <- aoc19::DATASET$day05
   day05_diagnostic(input_buffer, input_array)
 }

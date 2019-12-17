@@ -12,9 +12,12 @@ test_that("instruction operation is correctly identified", {
   expect_equal(op(1102), "02")
   expect_equal(op(104), "04")
   expect_equal(op(99), "99")
+  expect_equal(op(5), "05")
+  expect_equal(op(106), "06")
+  expect_equal(op(1007), "07")
+  expect_equal(op(1108), "08")
   expect_error(op(NULL), message = "invalid instruction")
   expect_error(op(177), message = "unknown operation")
-  expect_error(op(7), message = "unknown operation")
 })
 
 test_that("instruction length is correctly identified", {
@@ -28,8 +31,11 @@ test_that("instruction length is correctly identified", {
   expect_equal(len(3), 2)
   expect_equal(len(104), 2)
   expect_equal(len(99), 1)
+  expect_equal(len(5), 3)
+  expect_equal(len(6), 3)
+  expect_equal(len(7), 4)
+  expect_equal(len(8), 4)
   expect_error(len(177), message = "unknown operation")
-  expect_error(len(7), message = "unknown operation")
 })
 
 test_that("instruction parameter modes are properly identified", {
@@ -44,10 +50,34 @@ test_that("instruction parameter modes are properly identified", {
   expect_equal(mode(102),  c(1,0,0))
   expect_equal(mode(2),    c(0,0,0))
 
+  expect_equal(mode(3),    c(0))
+  expect_equal(mode(4),    c(0))
+  expect_equal(mode(104),  c(1))
+
+  expect_equal(mode(0005), c(0,0))
+  expect_equal(mode(0105), c(1,0))
+  expect_equal(mode(1005), c(0,1))
+  expect_equal(mode(1105), c(1,1))
+
+  expect_equal(mode(0006), c(0,0))
+  expect_equal(mode(0106), c(1,0))
+  expect_equal(mode(1006), c(0,1))
+  expect_equal(mode(1106), c(1,1))
+
+  expect_equal(mode(1107), c(1,1,0))
+  expect_equal(mode(1007), c(0,1,0))
+  expect_equal(mode(107),  c(1,0,0))
+  expect_equal(mode(7),    c(0,0,0))
+
+  expect_equal(mode(1108), c(1,1,0))
+  expect_equal(mode(1008), c(0,1,0))
+  expect_equal(mode(108),  c(1,0,0))
+  expect_equal(mode(8),    c(0,0,0))
 
   expect_error(mode(11001), message = "invalid mode")
   expect_error(mode(11002), message = "invalid mode")
   expect_error(mode(103), message = "invalid mode")
+
 })
 
 test_that("sum operation in intcode array performs correctly", {
@@ -68,7 +98,21 @@ test_that("sum operation in intcode array performs correctly", {
   expect_equal(opsum(c(1,0,4,5,99,0)), c(1,0,4,5,99,100))
 })
 
-test_that("mul operation performs as a sum", {
+test_that("sum operation returns correct pointer", {
+  make_sum <- function(in_buffer, out_buffer) {
+    function(pointer, array) {
+      v <- day05_opsum(pointer, array, in_buffer, out_buffer)
+      v$pointer
+    }
+  }
+  opsum <- make_sum(c(1), c(1))
+  # 0 -> 4
+  expect_equal(opsum(0, c(1101,1,1,5,99,0)), 4)
+  # 2 -> 6
+  expect_equal(opsum(2, c(0,0,1101,5,4,5,99,0)), 6)
+})
+
+test_that("mul operation in intcode array performs correctly", {
   make_mul <- function(pointer, in_buffer, out_buffer) {
     function(array) {
       v <- day05_opmul(pointer, array, in_buffer, out_buffer)
@@ -86,38 +130,78 @@ test_that("mul operation performs as a sum", {
   expect_equal(opmul(c(1,0,4,5,99,0)), c(1,0,4,5,99,99))
 })
 
+test_that("mul operation returns correct pointer", {
+  make_mul <- function(in_buffer, out_buffer) {
+    function(pointer, array) {
+      v <- day05_opmul(pointer, array, in_buffer, out_buffer)
+      v$pointer
+    }
+  }
+  opmul <- make_mul(c(1), c(1))
+  # 0 -> 4
+  expect_equal(opmul(0, c(1101,1,1,5,99,0)), 4)
+  # 2 -> 6
+  expect_equal(opmul(2, c(0,0,1101,5,4,5,99,0)), 6)
+})
+
+
 test_that("read operation reads from buffer", {
+  opin <- function(array, in_buffer) {
+    res <- day05_opinput(0, array, in_buffer, integer())
+    res[c("array", "in_buffer")]
+  }
   expect_equal(
-    day05_opinput(0, array = c(3,4,99,0,0), in_buffer = c(13,14,15,16), c(1)),
-    list(array = c(3,4,99,0,13), in_buffer = c(14,15,16), out_buffer = c(1)))
+    opin(array = c(3,4,99,0,0), in_buffer = c(13,14,15,16)),
+    list(array = c(3,4,99,0,13), in_buffer = c(14,15,16)))
   expect_equal(
-    day05_opinput(0, array = c(3,4,99,0,0), in_buffer = c(14,15,16), c(1)), 
-    list(array = c(3,4,99,0,14), in_buffer = c(15,16), out_buffer = c(1)))
+    opin(array = c(3,4,99,0,0), in_buffer = c(14,15,16)),
+    list(array = c(3,4,99,0,14), in_buffer = c(15,16)))
   expect_equal(
-    day05_opinput(0, array = c(3,4,99,0,0), in_buffer = c(15,16), c(1)), 
-    list(array = c(3,4,99,0,15), in_buffer = c(16), out_buffer = c(1)))
+    opin(array = c(3,4,99,0,0), in_buffer = c(15,16)),
+    list(array = c(3,4,99,0,15), in_buffer = c(16)))
   expect_equal(
-    day05_opinput(0, array = c(3,4,99,0,0), in_buffer = c(16), c(1)), 
-    list(array = c(3,4,99,0,16), in_buffer = numeric(), out_buffer = c(1)))
+    opin(array = c(3,4,99,0,0), in_buffer = c(16)),
+    list(array = c(3,4,99,0,16), in_buffer = numeric()))
   expect_error(
-    day05_opinput(0, array = c(3,4,99,0,0), in_buffer = numeric(), c(1)),
-    message = "input buffer"
+    opin(array = c(3,4,99,0,0), in_buffer = numeric()),
+    message = "input buffer")
+})
+
+test_that("pointer moves properly on read operation", {
+  x <- sample.int(1000,1)
+  opin <- function(array, pointer) {
+    res <- day05_opinput(pointer, array, c(x), integer())
+    res[c("pointer", "array")]
+  }
+  expect_equal(
+    opin(pointer = 0, array = c(3,0,99)),
+    list(pointer = 2, array = c(x,0,99))
+  )
+  expect_equal(
+    opin(pointer = 3, array = c(3,0,99,3,1,99)),
+    list(pointer = 5, array = c(3,x,99,3,1,99))
   )
 })
 
 test_that("write operation writes to buffer", {
+  x <- sample.int(1000,1)
+  opwr <- function(array, out_buffer) {
+    res <- day05_opoutput(0, array = array, integer(), out_buffer)
+    res[c("array", "out_buffer")]
+  }
   expect_equal(
-    day05_opoutput(0, array = c(104,4,99,0,0), c(1), numeric()), 
-    list(array = c(104,4,99,0,0), in_buffer = c(1), out_buffer = c(4)))
+    opwr(array = c(104,x,99,0,0), out_buffer = integer()),
+    list(array = c(104,x,99,0,0), out_buffer = c(x)))
   expect_equal(
-    day05_opoutput(0, array = c(4,4,99,0,2), c(1), c(4)), 
-    list(array = c(4,4,99,0,2), in_buffer = c(1), out_buffer = c(4,2)))
+    opwr(array = c(4,4,99,0,x
+    ), c(4)),
+    list(array = c(4,4,99,0,x), out_buffer = c(4,x)))
   expect_equal(
-    day05_opoutput(0, array = c(4,2,99,0,2), c(1), c(4,2)), 
-    list(array = c(4,2,99,0,2), in_buffer = c(1), out_buffer = c(4,2,99)))
+    opwr(array = c(4,2,99,0,x), c(4,x)),
+    list(array = c(4,2,99,0,x), out_buffer = c(4,x,99)))
   expect_equal(
-    day05_opoutput(0, array = c(4,0,99,0,2), c(1), c(4,2,99)), 
-    list(array = c(4,0,99,0,2), in_buffer = c(1), out_buffer = c(4,2,99,4)))
+    opwr(array = c(4,0,99,0,2), c(4,2,99)),
+    list(array = c(4,0,99,0,2), out_buffer = c(4,2,99,4)))
 })
 
 test_that("get value operation works as expected", {
@@ -154,4 +238,127 @@ test_that("mode in write operation works as expected", {
 
 test_that("solution part 1 returns correct result", {
   expect_equal(day05_part1_solution(), c(0,0,0,0,0,0,0,0,0,13087969))
+})
+
+test_that("jump-if-true function updates pointer properly", {
+  jump <- function(array) {
+    res <- day05_jumpiftrue(0, array, integer(), integer())
+    res$pointer
+  }
+  expect_equal(jump(c(1005,4,0,99,0)), 3)
+  expect_equal(jump(c(1005,4,0,99,1)), 0)
+  expect_equal(jump(c(1005,4,4,99,1)), 4)
+  expect_equal(jump(c(1105,4,0,99,0)), 0)
+  expect_equal(jump(c(1105,0,0,99,0)), 3)
+  expect_equal(jump(c(1105,4,4,99,0)), 4)
+})
+
+test_that("jump-if-false function updates pointer properly", {
+  jump <- function(array) {
+    res <- day05_jumpiffalse(0, array, integer(), integer())
+    res$pointer
+  }
+  expect_equal(jump(c(1006,4,0,99,0)), 0)
+  expect_equal(jump(c(1006,4,4,99,0)), 4)
+  expect_equal(jump(c(1006,4,0,99,1)), 3)
+  expect_equal(jump(c(1106,0,0,99,0)), 0)
+  expect_equal(jump(c(1106,0,4,99,0)), 4)
+  expect_equal(jump(c(1106,4,0,99,0)), 3)
+})
+
+test_that("one-if-less function updates array properly", {
+  x <- sample.int(1000,1)
+  one <- function(array) {
+    res <- day05_oneifless(0, array, integer(), integer())
+    res$array
+  }
+  expect_equal(one(c(0007,1,2,5,99,x)), c(0007,1,2,5,99,1))
+  expect_equal(one(c(0007,0,1,5,99,x)), c(0007,0,1,5,99,0))
+  expect_equal(one(c(0007,1,1,5,99,x)), c(0007,1,1,5,99,0))
+
+  expect_equal(one(c(0107,2,1,5,99,x)), c(0107,2,1,5,99,0))
+  expect_equal(one(c(0107,x,5,5,99,x+1)), c(0107,x,5,5,99,1))
+  expect_equal(one(c(0107,1,2,5,99,x)), c(0107,1,2,5,99,1))
+
+  expect_equal(one(c(1007,2,1,5,99,x)), c(1007,2,1,5,99,0))
+  expect_equal(one(c(1007,5,x+1,5,99,x)), c(1007,5,x+1,5,99,1))
+  expect_equal(one(c(1007,1,2,5,99,x)), c(1007,1,2,5,99,1))
+
+  expect_equal(one(c(1107,1,2,5,99,x)), c(1107,1,2,5,99,1))
+  expect_equal(one(c(1107,x,x+1,5,99,x)), c(1107,x,x+1,5,99,1))
+  expect_equal(one(c(1107,2,1,5,99,x)), c(1107,2,1,5,99,0))
+})
+
+test_that("one-if-less function updates pointer properly", {
+  x <- sample.int(1000,1)
+  one <- function(pointer, array) {
+    res <- day05_oneifless(pointer, array, integer(), integer())
+    res$pointer
+  }
+  expect_equal(one(0,c(integer()     , 7,1,2,5,99,x)), 0+4)
+  expect_equal(one(9,c(replicate(9,x), 7,1,1,5,99,x)), 9+4)
+  expect_equal(one(x,c(replicate(x,x), 7,1,1,5,99,x)), x+4)
+})
+
+test_that("one-if-equal function updates array properly", {
+  x <- sample.int(1000,1)
+  one <- function(array) {
+    res <- day05_oneifequal(0, array, integer(), integer())
+    res$array
+  }
+  expect_equal(one(c(0008,1,2,5,99,x)), c(0008,1,2,5,99,0))
+  expect_equal(one(c(0008,0,1,5,99,x)), c(0008,0,1,5,99,0))
+  expect_equal(one(c(0008,1,1,5,99,x)), c(0008,1,1,5,99,1))
+
+  expect_equal(one(c(0108,2,1,5,99,x)), c(0108,2,1,5,99,1))
+  expect_equal(one(c(0108,x,5,5,99,x)), c(0108,x,5,5,99,1))
+  expect_equal(one(c(0108,1,2,5,99,x)), c(0108,1,2,5,99,0))
+
+  expect_equal(one(c(1008,2,1,5,99,x)), c(1008,2,1,5,99,1))
+  expect_equal(one(c(1008,5,x,5,99,x)), c(1008,5,x,5,99,1))
+  expect_equal(one(c(1008,1,2,5,99,x)), c(1008,1,2,5,99,0))
+
+  expect_equal(one(c(1108,1,1,5,99,x)), c(1108,1,1,5,99,1))
+  expect_equal(one(c(1108,x,x,5,99,x)), c(1108,x,x,5,99,1))
+  expect_equal(one(c(1108,1,2,5,99,x)), c(1108,1,2,5,99,0))
+})
+
+test_that("one-if-equal function moves pointer properly", {
+  x <- sample.int(1000,1)
+  one <- function(pointer, array) {
+    res <- day05_oneifequal(pointer, array, integer(), integer())
+    res$pointer
+  }
+  expect_equal(one(0,c(integer()     , 8,1,2,5,99,x)), 0+4)
+  expect_equal(one(7,c(replicate(7,x), 8,1,1,5,99,x)), 7+4)
+  expect_equal(one(x,c(replicate(x,x), 8,1,1,5,99,x)), x+4)
+})
+
+test_that("jump tests works", {
+  # position mode instruction set
+  op_array <- c(3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9)
+  expect_equal(day05_diagnostic(input_buffer =  0, array = op_array), 0)
+  expect_equal(day05_diagnostic(input_buffer =  1, array = op_array), 1)
+  expect_equal(day05_diagnostic(input_buffer = -1, array = op_array), 1)
+
+  # immediate mode instruction set
+  op_array <- c(3,3,1105,-1,9,1101,0,0,12,4,12,99,1)
+  expect_equal(day05_diagnostic(input_buffer =  0, array = op_array), 0)
+  expect_equal(day05_diagnostic(input_buffer =  1, array = op_array), 1)
+  expect_equal(day05_diagnostic(input_buffer = -1, array = op_array), 1)
+
+  # larger example
+  op_array <- c(3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,
+                1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,
+                999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99)
+  expect_equal(day05_diagnostic(input_buffer =  0, array = op_array), 0999)
+  expect_equal(day05_diagnostic(input_buffer =  7, array = op_array), 0999)
+  expect_equal(day05_diagnostic(input_buffer =  8, array = op_array), 1000)
+  expect_equal(day05_diagnostic(input_buffer =  9, array = op_array), 1001)
+  expect_equal(day05_diagnostic(input_buffer = 99, array = op_array), 1001)
+  
+})
+
+test_that("solution part 2 returns correct result", {
+  expect_equal(day05_part2_solution(), 14110739)
 })
