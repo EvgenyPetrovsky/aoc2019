@@ -38,6 +38,36 @@ day06_check_splits <- function(splits) {
   }
 }
 
+#' build chains of orbits towards center of everything
+#'
+#' Function returns result as a list of object names and
+#' vectors of objects between them and center of everything
+#'
+#' @export
+#' @param orbit_map object relation map
+#' @param obj vector of object for which distance needs to be calculated
+day06_build_chains <- function(orbit_map, obj) {
+  # iteration function
+  iter <- function(cache, object) {
+    if (object %in% names(cache)) {
+      cache
+    } else if (!object %in% names(orbit_map)) {
+      cache[[object]] <- character()
+      cache
+    } else {
+      center_object <- orbit_map[[object]]
+      c_cache <- iter(cache, center_object)
+      c_cache[[object]] <- c(c_cache[[center_object]], center_object)
+      c_cache
+    }
+  }
+  # initial call
+  cache <- list()
+  chains <- Reduce(f = iter, x = obj, init = cache)
+  # return sorted list
+  chains[sort(obj)]
+}
+
 #' calculate number of orbits for given map and object code
 #'
 #' Function returns result as a list of object names and
@@ -47,23 +77,9 @@ day06_check_splits <- function(splits) {
 #' @param orbit_map object relation map
 #' @param obj vector of object for which distance needs to be calculated
 day06_count_orbits <- function(orbit_map, obj) {
-  # iteration function
-  iter <- function(cache, object) {
-    if (object %in% names(cache)) {
-      cache
-    } else if (!object %in% names(orbit_map)) {
-      cache[[object]] <- 0
-      cache
-    } else {
-      center_object <- orbit_map[[object]]
-      c_cache <- iter(cache, center_object)
-      c_cache[[object]] <- c_cache[[center_object]] + 1
-      c_cache
-    }
-  }
-  # initial call
-  cache <- list()
-  counts <- Reduce(f = iter, x = obj, init = cache)
+  chains <- day06_build_chains(orbit_map, obj)
+  counts <- chains %>%
+    Map(f = length)
   # return sorted list
   counts[sort(obj)]
 }
@@ -76,13 +92,38 @@ day06_part1_solution <- function() {
   schema  <- aoc19::DATASET$day06
   all_obj <- schema %>% day06_rotates_around() %>% day06_gather_objects()
   # functions
-  count <- function(orbit_code, obj) {
-    o <- day06_rotates_around
-    day06_count_orbits(o(orbit_code), obj)
+  f <- function(obj) {
+    orbit_map <- day06_rotates_around(schema)
+    day06_count_orbits(orbit_map, obj)
   }
   sum_total <- function(count_map) {
     Reduce(f = sum, count_map)
   }
   # result
-  schema %>% count(all_obj) %>% sum_total()
+  f(all_obj) %>% sum_total()
+}
+
+day06_count_transfers <- function(orbit_map, from_obj, to_obj) {
+  chains <- day06_build_chains(orbit_map, c(from_obj, to_obj))
+  chain1 <- chains[[1]]
+  chain2 <- chains[[2]]
+
+  count  <- c(setdiff(chain1, chain2), setdiff(chain2,chain1)) %>% length()
+  count
+}
+
+#' day 6 part 1 solution
+#'
+#' @export
+day06_part2_solution <- function() {
+  #values
+  schema  <- aoc19::DATASET$day06
+  # functions
+  f <- function(from, to) {
+    orbit_map <- day06_rotates_around(schema)
+    counts <- day06_count_transfers(orbit_map, from, to)
+    counts
+  }
+  # result
+  f(from = "YOU", to = "SAN")
 }

@@ -69,23 +69,90 @@ test_that("gather objects finds all objects in map", {
   expect_equal(f(c("A)B", "B)C", "C)D", "B)E")), c("A", "B", "C", "D", "E"))
 })
 
-test_that("aoc example works", {
+test_that("aoc part 1 example works", {
   schema <- c(
     "COM)B","B)C","C)D","D)E","E)F","B)G","G)H","D)I","E)J","J)K","K)L"
   )
-  f = function(orbit_code, obj) {
-    o <- day06_rotates_around
-    counts <- day06_count_orbits(o(orbit_code), obj)
-    Reduce(f = sum, counts)
-  }
   all_obj <- schema %>% day06_rotates_around() %>% day06_gather_objects()
 
-  expect_equal(f(schema, "D"), 3)
-  expect_equal(f(schema, "L"), 7)
-  expect_equal(f(schema, all_obj), 42)
+  f <- function(obj) {
+    orbit_map <- day06_rotates_around(schema)
+    counts <- day06_count_orbits(orbit_map, obj)
+    Reduce(f = sum, counts)
+  }
+
+  expect_equal(f("D"), 3)
+  expect_equal(f("L"), 7)
+  expect_equal(f(all_obj), 42)
 
 })
 
 test_that("day 6 part 1 solution is correct", {
   expect_equal(day06_part1_solution(), 223251)
+})
+
+test_that("orbit chains for a given map and object", {
+  f = function(orbit_code, obj) {
+    o <- day06_rotates_around
+    day06_build_chains(o(orbit_code), obj)
+  }
+  expect_equal(
+    f(orbit_code = c("A)B"), obj = "B"),
+    list(B = "A"))
+  expect_equal(
+    f(orbit_code = c("A)B"), obj = "A"),
+    list(A = character()))
+  expect_equal(
+    f(orbit_code = c("A)B"), obj = c("A", "B")),
+    list(A = character(), B = "A"))
+  expect_equal(
+    f(orbit_code = c("A)B", "B)C"), obj = c("A", "B", "C")),
+    list(A = character(), B = "A", C = c("A","B")))
+  expect_equal(
+    f(orbit_code = c("A)B", "A)C"), obj = c("A", "B", "C")),
+    list(A = character(), B = "A", C = c("A")))
+})
+
+test_that("count transfers works", {
+  schema <- c("A)B","B)C","A)D","D)E", "C)F", "C)G", "G)I")
+  #   D - E
+  #  /
+  # A - B - C - F
+  #          \
+  #           G - I
+  f <- function(from, to) {
+    orbit_map <- day06_rotates_around(schema)
+    counts <- day06_count_transfers(orbit_map, from, to)
+    counts
+  }
+  expect_equal(f("B","D"), 0)
+  expect_equal(f("B","C"), 1)
+  expect_equal(f("E","C"), 2)
+  expect_equal(f("E","F"), 3)
+  expect_equal(f("E","I"), 4)
+})
+
+test_that("aoc part 2 example works", {
+  schema <- c(
+    "COM)B","B)C","C)D","D)E","E)F","B)G","G)H","D)I","E)J","J)K","K)L","K)YOU",
+    "I)SAN"
+  )
+  #                           YOU
+  #                          /
+  #         G - H       J - K - L
+  #        /           /
+  # COM - B - C - D - E - F
+  #                \
+  #                 I - SAN
+  f <- function(from, to) {
+    orbit_map <- day06_rotates_around(schema)
+    counts <- day06_count_transfers(orbit_map, from, to)
+    counts
+  }
+
+  expect_equal(f(from = "YOU", to = "SAN"), 4)
+})
+
+test_that("day 6 part 2 solution is correct", {
+  expect_equal(day06_part2_solution(), 430)
 })
