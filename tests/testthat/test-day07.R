@@ -10,7 +10,7 @@ test_that("connect lists with element", {
 })
 
 test_that("permutations work", {
-  f = day07_perm
+  f = day07_permutations
   expect_equal(f(1), 1)
   expect_error(f(c()), message = "nothing to permutate")
   expect_equal(f(1:2), list(c(2,1), c(1,2)))
