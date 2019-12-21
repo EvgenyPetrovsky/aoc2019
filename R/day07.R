@@ -35,6 +35,30 @@ da07_add_value_to_list_elements <- function(list_of_values, value) {
   list_of_values %>% Map(f = function(x) c(x, value))
 }
 
-day07_run_curcuit <- function(input_instructions) {
-  NULL
+#' Run circuit of amplifiers
+#'
+#' param input_instructions vector of input instructions for every amplifier
+day07_run_curcuit <- function(input_instructions, array) {
+  amp_input <- 0
+  for (i in 1:5) {
+    in_buffer <- c(input_instructions[i], amp_input)
+    out_buffer <- day05_diagnostic(in_buffer, array)
+    amp_input <- out_buffer[1]
+  }
+  out_buffer[1]
+}
+
+#' Day 7 part 1 solution
+#'
+#' @export
+day07_part1_solution <- function() {
+  array <- aoc19::DATASET$day07
+  # run circuit for all combinations
+  perm  <- day07_permutations(0:4)
+  outputs <- perm %>% Map(f = function(i) day07_run_curcuit(i, array))
+  # find maximum output
+  idx_max_s <- which.max(outputs)
+  i_max_sig <- perm[[idx_max_s]]
+  max_sig <- outputs[[idx_max_s]]
+  max_sig
 }
