@@ -111,7 +111,7 @@ day05_jumpiftrue <- function(pointer, array, in_buffer, out_buffer) {
   v1 <- day05_getv(mode = modes[1], pointer + 1, array)
   v2 <- day05_getv(mode = modes[2], pointer + 2, array)
   # move pointer if 1st parameter non-zero
-  new_pointer <- 
+  new_pointer <-
     if (v1 != 0) {v2} else {pointer + day05_intruct_length(instruction_code)}
   # result
   list(
@@ -132,7 +132,7 @@ day05_jumpiffalse <- function(pointer, array, in_buffer, out_buffer) {
   v1 <- day05_getv(mode = modes[1], pointer + 1, array)
   v2 <- day05_getv(mode = modes[2], pointer + 2, array)
   # move pointer if 1st parameter non-zero
-  new_pointer <- 
+  new_pointer <-
     if (v1 == 0) {v2} else {pointer + day05_intruct_length(instruction_code)}
   # result
   list(
@@ -281,10 +281,11 @@ day05_setv <- function(value, pointer, array) {
 #'
 #' @param input_buffer buffer of input values
 #' @param array INCODE array
-day05_diagnostic <- function(input_buffer, array) {
+day05_run_computer <- function(input_buffer, array) {
   pos <- 0
+  iteration <- 0
   temp <- array
-  output_buffer <- c()
+  output_buffer <- integer()
 
   #
   next_pos <- function(pos, instruct_code) {
@@ -307,14 +308,32 @@ day05_diagnostic <- function(input_buffer, array) {
       in_buffer = input_buffer, out_buffer = output_buffer)
 
     temp          <- res$array
-    input_buffer  <- res$in_buffer
-    output_buffer <- res$out_buffer
+    input_buffer  <- if (length(res$out_buffer) > 0) {
+      buffer <- c(res$in_buffer, res$out_buffer)
+      buffer
+    } else {
+      res$in_buffer
+    }
+    output_buffer <- integer()
+
     # and finally new pointer
-    pos           <- res$pointer
+    pos <- res$pointer
 
   }
+  out <- list(
+    array = temp,
+    buffer = input_buffer
+  )
 
-  output_buffer
+}
+
+#' run diagnostics on INTCODE computer
+#'
+#' @param input_buffer buffer of input values
+#' @param array INCODE array
+day05_diagnostic <- function(input_buffer, array) {
+  run_results <- day05_run_computer(input_buffer, array)
+  run_results$buffer
 }
 
 #' Day 05 part 1 solution

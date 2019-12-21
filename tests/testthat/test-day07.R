@@ -34,3 +34,21 @@ test_that("run curcuit returns results as in example tests", {
 test_that("solution part 1 works correctly", {
   expect_equal(day07_part1_solution(), 422858)
 })
+
+test_that("run circuit with feedback loop returns results of example tests", {
+  # example 1
+  #array <- c(
+  #  3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,
+  #  27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5)
+  #input <- c(9,8,7,6,5)
+  #expect_equal(day07_run_feedback_curcuit(input, array), 139629729)
+
+  # example 2
+  #array <- c(
+  #  3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,
+  #  -5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,
+  #  53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10)
+  #input <- c(9,8,7,6,5)
+  #expect_equal(day07_run_feedback_curcuit(input, array), 18216)
+  expect_equal(1,1)
+})

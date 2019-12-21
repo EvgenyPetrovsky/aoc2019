@@ -63,3 +63,32 @@ day07_part1_solution <- function() {
   max_sig <- outputs[[idx_max_s]]
   max_sig
 }
+
+#' Run circuit of amplifiers with feedback loop
+#'
+#' @export
+#' @param input_instructions vector of input instructions for every amplifier
+#' @param array INTCODE array
+day07_run_feedback_curcuit <- function(input_instructions, array) {
+  amp_input <- 0
+  out_buffer <- integer()
+  amp_software <- 1:5 %>% Map (f = function(x) array)
+  while (!is.null(amp_input)) {
+    last_out <- amp_input
+    for (i in 1:5) {
+      # restore software of amplifier
+      array <- amp_software[[i]]
+      # run program
+      buffer <- c(input_instructions[i], amp_input)
+      run_res <- day05_run_computer(buffer, array)
+      buffer <- run_res$buffer
+      # store sofware state of amplifier
+      amp_software[[i]] <- run_res$array
+      amp_input <- buffer[1]
+      if (length(amp_input) == 0) {
+        break
+      }
+    }
+  }
+  last_out
+}
