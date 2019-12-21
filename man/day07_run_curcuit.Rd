@@ -6,6 +6,11 @@
 \usage{
 day07_run_curcuit(input_instructions, array)
 }
+\arguments{
+\item{input_instructions}{vector of input instructions for every amplifier}
+
+\item{array}{INTCODE array}
+}
 \description{
-param input_instructions vector of input instructions for every amplifier
+Run circuit of amplifiers
 }

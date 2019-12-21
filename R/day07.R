@@ -37,7 +37,8 @@ da07_add_value_to_list_elements <- function(list_of_values, value) {
 
 #' Run circuit of amplifiers
 #'
-#' param input_instructions vector of input instructions for every amplifier
+#' @param input_instructions vector of input instructions for every amplifier
+#' @param array INTCODE array
 day07_run_curcuit <- function(input_instructions, array) {
   amp_input <- 0
   for (i in 1:5) {
