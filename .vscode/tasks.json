@@ -72,7 +72,7 @@
         {
             "label": "Import data into project",
             "type": "shell",
-            "command": "R -q -e 'for (file in dir('./data-raw', full.names = TRUE)) source(file)'",
+            "command": "R -q -e 'for (file in dir(\"./data-raw\", full.names = TRUE)) source(file)'",
             "windows": {
                 "command": "R.exe -q -e 'for (file in dir(''./data-raw'', full.names = TRUE)) source(file)'"
             },
