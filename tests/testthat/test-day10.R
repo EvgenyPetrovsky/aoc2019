@@ -57,24 +57,24 @@ test_that("visible object is an object that directly visible to station", {
   f <- day10_visible
   # station on object
   expect_equal(
-    f(new_object = c(1,1), for_station = c(1,1), 
+    f(new_object = c(1,1), for_station = c(1,1),
       among_others = list()),
     TRUE)
   expect_equal(
-    f(new_object = c(1,1), for_station = c(1,1), 
+    f(new_object = c(1,1), for_station = c(1,1),
       among_others = list(c(4,2))),
     TRUE)
   # other objects
   expect_equal(
-    f(new_object = c(3,1), for_station = c(1,1), 
+    f(new_object = c(3,1), for_station = c(1,1),
       among_others = list()),
     TRUE)
   expect_equal(
-    f(new_object = c(3,1), for_station = c(1,1), 
+    f(new_object = c(3,1), for_station = c(1,1),
       among_others = list(c(2,1))),
     FALSE)
   expect_equal(
-    f(new_object = c(7,3), for_station = c(1,1), 
+    f(new_object = c(7,3), for_station = c(1,1),
       among_others = list(c(4,2))),
     FALSE)
 })
@@ -120,7 +120,7 @@ test_that("day10 part 1 solution is correct", {
 })
 
 test_that("decart to polar gives angle & distance to asteroid", {
-  f <- function(station, asteriod) 
+  f <- function(station, asteriod)
     day10_dec_to_polar(station, asteriod)
   expect_equal(f(c(10, 10), c(10,5)), c(pi*0.00, 5))
   expect_equal(f(c(10, 10), c(11,9)), c(pi*0.25, sqrt(2)))
@@ -133,4 +133,24 @@ test_that("decart to polar gives angle & distance to asteroid", {
   #expect_equal(f(c(10, 10), c(10,5)), list(0, list(5 = c(10,5)))
   #expect_equal(f(c(10, 10), c(11,9)), list(pi/4, list(sqrt(2) = c(11,9)))
   #expect_equal(f(c(10, 10), c(14,10)), list(pi, list(4 = c(14,10)))
+})
+
+test_that("identify_all_polar gives list: angles->distances->coordinates", {
+  station <- c(10,10)
+  srt <- function(l) {
+    # function that sorts list
+    isort <- function(x) {n <- names(x); x[sort(n)]}
+    # sort list of lists (first nested and then nesting)
+    l %>% Map(f = isort) %>% isort()
+  }
+  fun <- function(s, xs) day10_identify_all_polar(s, xs) %>% srt()
+  lst <- function(l, a, d, val) {
+    f <- function(n) format(n, nsmall = 9, width = 12)
+    a <- f(a); d <- f(d)
+    res <- list(); res[[d]] <- val;
+    l[[a]] <- c(l, res); srt(l)
+  }
+  expect_equal(
+    fun(station, list(station)),
+    list() %>% lst(0, 0, station))
 })

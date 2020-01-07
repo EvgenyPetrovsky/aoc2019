@@ -132,12 +132,13 @@ day10_locate_objects <- function(station, objects) {
 
   visible_objects <- 1:max_radius %>%
     Reduce(f = function(closer_objects, radius) {
-      radius %>%
+      obj <- 
+        radius %>%
         contour() %>%
         objects_on_contour() %>%
-        Filter(f = function(object) is_visible(object, closer_objects)) %>%
+        Filter(f = function(object) is_visible(object, closer_objects))
         # add new visible objects to previous
-        c(closer_objects, .)
+      c(closer_objects, obj)
     },
     init = list())
   #print(paste(
@@ -162,6 +163,9 @@ day10_part1_solution <- function() {
 }
 
 #' Transform coordinates from decart to polar system
+#'
+#' @param station station coordinates
+#' @param asteroid asteroid coordinates
 day10_dec_to_polar <- function(station, asteroid) {
   x_0 <- station[1]
   y_0 <- station[2]
@@ -185,8 +189,8 @@ day10_dec_to_polar <- function(station, asteroid) {
       unsigned_angle <- asin((y_1 - y_0)/distance)
       # identify 3rd and 4th quarters
       signed_angle <- ifelse(
-        x_1 - x_0 < 0, 
-        pi - unsigned_angle, 
+        x_1 - x_0 < 0,
+        pi - unsigned_angle,
         unsigned_angle)
       # rotate phase by 90 degrees (pi/2)
       shift_angle <- signed_angle + pi/2
@@ -196,4 +200,28 @@ day10_dec_to_polar <- function(station, asteroid) {
     }
   # return combination of angle and distance
   c(angle, distance)
+}
+
+#' Identify all polar coordinates of asteroids
+#'
+#' @export
+#' @param station position of station
+#' @param objects positions of objects represented as list
+day10_identify_all_polar <- function(station, objects) {
+
+  format_number <- function(number) {
+    number %>%
+      format(nsmall = 9, width = 12)
+  }
+
+  nest <- function(l, ortho) {
+    polar <- day10_dec_to_polar(station, ortho)
+    a <- format_number(polar[1])
+    d <- format_number(polar[2])
+    new_el <- c(list(), l[[a]])
+    new_el[[d]] <- ortho
+    l[[a]] <- new_el[sort(names(new_el))]
+    l
+  }
+  Reduce(f = nest, x = objects, init = list())
 }

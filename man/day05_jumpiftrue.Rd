@@ -4,10 +4,12 @@
 \alias{day05_jumpiftrue}
 \title{move pointer if frist parameter is non-zero}
 \usage{
-day05_jumpiftrue(pointer, array, in_buffer, out_buffer)
+day05_jumpiftrue(pointer, base, array, in_buffer, out_buffer)
 }
 \arguments{
 \item{pointer}{pointer}
+
+\item{base}{relative base of pointer for parameter mode 2}
 
 \item{array}{array}
 

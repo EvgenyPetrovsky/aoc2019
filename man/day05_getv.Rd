@@ -4,12 +4,14 @@
 \alias{day05_getv}
 \title{Get value}
 \usage{
-day05_getv(mode, pointer, array)
+day05_getv(mode, pointer, base, array)
 }
 \arguments{
 \item{mode}{parameter mode (read from array or show exact value)}
 
 \item{pointer}{pointer to element in array or exact value}
+
+\item{base}{relative base of pointer for parameter mode 2}
 
 \item{array}{array of intcodes}
 }

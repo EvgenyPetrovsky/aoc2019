@@ -4,15 +4,19 @@
 \alias{day05_setv}
 \title{Set value}
 \usage{
-day05_setv(value, pointer, array)
+day05_setv(value, mode, pointer, base, array)
 }
 \arguments{
 \item{value}{parameter value}
 
+\item{mode}{parameter mode (read from array or show exact value)}
+
 \item{pointer}{pointer to element in array or exact value}
+
+\item{base}{relative base of pointer for parameter mode 2}
 
 \item{array}{array of intcodes}
 }
 \description{
-Set value
+takes value and puts it into right place in array returning updated array
 }

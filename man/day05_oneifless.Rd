@@ -4,10 +4,12 @@
 \alias{day05_oneifless}
 \title{move pointer if frist parameter is less than second}
 \usage{
-day05_oneifless(pointer, array, in_buffer, out_buffer)
+day05_oneifless(pointer, base, array, in_buffer, out_buffer)
 }
 \arguments{
 \item{pointer}{pointer}
+
+\item{base}{relative base of pointer for parameter mode 2}
 
 \item{array}{array}
 

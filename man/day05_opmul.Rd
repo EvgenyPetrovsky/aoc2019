@@ -4,10 +4,12 @@
 \alias{day05_opmul}
 \title{multiply two numbers}
 \usage{
-day05_opmul(pointer, array, in_buffer, out_buffer)
+day05_opmul(pointer, base, array, in_buffer, out_buffer)
 }
 \arguments{
 \item{pointer}{current position of instruction}
+
+\item{base}{relative base of pointer for parameter mode 2}
 
 \item{array}{incode array}
 

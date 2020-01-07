@@ -83,7 +83,7 @@ test_that("instruction parameter modes are properly identified", {
 test_that("sum operation in intcode array performs correctly", {
   make_sum <- function(pointer, in_buffer, out_buffer) {
     function(array) {
-      v <- day05_opsum(pointer, array, in_buffer, out_buffer)
+      v <- day05_opsum(pointer, 0, array, in_buffer, out_buffer)
       v$array
     }
   }
@@ -101,7 +101,7 @@ test_that("sum operation in intcode array performs correctly", {
 test_that("sum operation returns correct pointer", {
   make_sum <- function(in_buffer, out_buffer) {
     function(pointer, array) {
-      v <- day05_opsum(pointer, array, in_buffer, out_buffer)
+      v <- day05_opsum(pointer, 0, array, in_buffer, out_buffer)
       v$pointer
     }
   }
@@ -115,7 +115,7 @@ test_that("sum operation returns correct pointer", {
 test_that("mul operation in intcode array performs correctly", {
   make_mul <- function(pointer, in_buffer, out_buffer) {
     function(array) {
-      v <- day05_opmul(pointer, array, in_buffer, out_buffer)
+      v <- day05_opmul(pointer, base = 0, array, in_buffer, out_buffer)
       v$array
     }
   }
@@ -133,7 +133,7 @@ test_that("mul operation in intcode array performs correctly", {
 test_that("mul operation returns correct pointer", {
   make_mul <- function(in_buffer, out_buffer) {
     function(pointer, array) {
-      v <- day05_opmul(pointer, array, in_buffer, out_buffer)
+      v <- day05_opmul(pointer, base = 0, array, in_buffer, out_buffer)
       v$pointer
     }
   }
@@ -147,7 +147,7 @@ test_that("mul operation returns correct pointer", {
 
 test_that("read operation reads from buffer", {
   opin <- function(array, in_buffer) {
-    res <- day05_opinput(0, array, in_buffer, integer())
+    res <- day05_opinput(pointer = 0, base = 0, array, in_buffer, integer())
     res[c("array", "in_buffer")]
   }
   expect_equal(
@@ -170,7 +170,7 @@ test_that("read operation reads from buffer", {
 test_that("pointer moves properly on read operation", {
   x <- sample.int(1000,1)
   opin <- function(array, pointer) {
-    res <- day05_opinput(pointer, array, c(x), integer())
+    res <- day05_opinput(pointer, base = 0, array, c(x), integer())
     res[c("pointer", "array")]
   }
   expect_equal(
@@ -186,7 +186,7 @@ test_that("pointer moves properly on read operation", {
 test_that("write operation writes to buffer", {
   x <- sample.int(1000,1)
   opwr <- function(array, out_buffer) {
-    res <- day05_opoutput(0, array = array, integer(), out_buffer)
+    res <- day05_opoutput(0, 0, array = array, integer(), out_buffer)
     res[c("array", "out_buffer")]
   }
   expect_equal(
@@ -206,34 +206,86 @@ test_that("write operation writes to buffer", {
 
 test_that("get value operation works as expected", {
   test_set <- c(5, 6, 7, 8, 9, 11, 12, 13, 14, 15)
-  expect_equal(day05_getv(mode = 0, pointer = 0, array = test_set), 11)
-  expect_equal(day05_getv(mode = 0, pointer = 1, array = test_set), 12)
-  expect_equal(day05_getv(mode = 0, pointer = 2, array = test_set), 13)
-  expect_equal(day05_getv(mode = 1, pointer = 0, array = test_set), 5)
-  expect_equal(day05_getv(mode = 1, pointer = 3, array = test_set), 8)
-  expect_equal(day05_getv(mode = 1, pointer = 4, array = test_set), 9)
+  getv <- function(mode, pointer, array) {
+    day05_getv(mode, pointer, base = 0, array)
+  }
+  expect_equal(getv(mode = 0, pointer = 0, array = test_set), 11)
+  expect_equal(getv(mode = 0, pointer = 1, array = test_set), 12)
+  expect_equal(getv(mode = 0, pointer = 2, array = test_set), 13)
+  expect_equal(getv(mode = 1, pointer = 0, array = test_set), 5)
+  expect_equal(getv(mode = 1, pointer = 3, array = test_set), 8)
+  expect_equal(getv(mode = 1, pointer = 4, array = test_set), 9)
+})
+
+test_that("get value returns zero when pointer refers out of range", {
+  test_set <- c(5, 6, 7, 8, 9, 11, 12, 13, 14, 15)
+  getv <- function(mode, pointer, array) {
+    day05_getv(mode, pointer, base = 0, array)
+  }
+  expect_equal(getv(mode = 0, pointer = 5, array = test_set), 0)
+  expect_equal(getv(mode = 1, pointer = 19, array = test_set), 0)
+  expect_equal(getv(mode = 0, pointer = 19, array = test_set), 5)
+})
+
+
+test_that("get value returns zero when pointer refers out of range", {
+  test_set <- c(5, 6, -7, 8, 9, 11, 12, 13, 14, 15)
+  getv <- function(mode, pointer, array) {
+    day05_getv(mode, pointer, base = 0, array)
+  }
   expect_error(
-    day05_getv(mode = 0, pointer = 5, array = test_set),
+    getv(mode = 1, pointer = -19, array = test_set),
     message = "out of range")
   expect_error(
-    day05_getv(mode = 1, pointer = 19, array = test_set),
+    getv(mode = 0, pointer = -19, array = test_set),
+    message = "out of range")
+  expect_error(
+    getv(mode = 0, pointer = 2, array = test_set),
     message = "out of range")
 })
 
-test_that("mode in write operation works as expected", {
-  test_set <- c(11, 12, 13, 14, 15)
+
+test_that("set value operation works as expected", {
+  test_set <- c(1, 2, 11, 12, 13, 14, 15)
+  setv <- function(value, pointer, array) {
+    day05_setv(
+      value = value, mode = 0,
+      pointer = pointer, base = 0,
+      array = array)
+  }
+
   expect_equal(
-    day05_setv(value = -11, pointer = 0, array = test_set),
-    c(-11, 12, 13, 14, 15))
+    setv(value = -11, pointer = 0, array = test_set),
+    c(1, -11, 11, 12, 13, 14, 15))
   expect_equal(
-    day05_setv(value = -12, pointer = 1, array = test_set),
-    c(11, -12, 13, 14, 15))
+    setv(value = -12, pointer = 1, array = test_set),
+    c(1, 2, -12, 12, 13, 14, 15))
+})
+
+test_that("set value raises error for negative pointer", {
+  test_set <- c(1, 2, 11, 12, 13, 14, 15)
+  setv <- function(value, pointer, array) {
+    day05_setv(
+      value = value, mode = 0,
+      pointer = pointer, base = 0,
+      array = array)
+  }
   expect_error(
-    day05_setv(value = 1, pointer = -1, array = test_set),
+    setv(value = 1, pointer = -1, array = test_set),
     message = "out of range")
-  expect_error(
-    day05_setv(value = 1, pointer = 5, array = test_set),
-    message = "out of range")
+})
+
+test_that("set value extends array for pointer that exceeds array length", {
+  test_set <- c(1, 2, 11, 12, 13, 14, 15)
+  setv <- function(value, pointer, array) {
+    day05_setv(
+      value = value, mode = 0,
+      pointer = pointer, base = 0,
+      array = array)
+  }
+  expect_equal(
+    setv(value = 1, pointer = 5, array = test_set),
+    {test_set[15] <- 1; test_set})
 })
 
 test_that("solution part 1 returns correct result", {
@@ -242,7 +294,7 @@ test_that("solution part 1 returns correct result", {
 
 test_that("jump-if-true function updates pointer properly", {
   jump <- function(array) {
-    res <- day05_jumpiftrue(0, array, integer(), integer())
+    res <- day05_jumpiftrue(0, 0, array, integer(), integer())
     res$pointer
   }
   expect_equal(jump(c(1005,4,0,99,0)), 3)
@@ -255,7 +307,7 @@ test_that("jump-if-true function updates pointer properly", {
 
 test_that("jump-if-false function updates pointer properly", {
   jump <- function(array) {
-    res <- day05_jumpiffalse(0, array, integer(), integer())
+    res <- day05_jumpiffalse(0, 0, array, integer(), integer())
     res$pointer
   }
   expect_equal(jump(c(1006,4,0,99,0)), 0)
@@ -269,7 +321,7 @@ test_that("jump-if-false function updates pointer properly", {
 test_that("one-if-less function updates array properly", {
   x <- sample.int(1000,1)
   one <- function(array) {
-    res <- day05_oneifless(0, array, integer(), integer())
+    res <- day05_oneifless(0, 0, array, integer(), integer())
     res$array
   }
   expect_equal(one(c(0007,1,2,5,99,x)), c(0007,1,2,5,99,1))
@@ -292,7 +344,7 @@ test_that("one-if-less function updates array properly", {
 test_that("one-if-less function updates pointer properly", {
   x <- sample.int(1000,1)
   one <- function(pointer, array) {
-    res <- day05_oneifless(pointer, array, integer(), integer())
+    res <- day05_oneifless(pointer, 0, array, integer(), integer())
     res$pointer
   }
   expect_equal(one(0,c(integer()     , 7,1,2,5,99,x)), 0+4)
@@ -303,7 +355,7 @@ test_that("one-if-less function updates pointer properly", {
 test_that("one-if-equal function updates array properly", {
   x <- sample.int(1000,1)
   one <- function(array) {
-    res <- day05_oneifequal(0, array, integer(), integer())
+    res <- day05_oneifequal(0, 0, array, integer(), integer())
     res$array
   }
   expect_equal(one(c(0008,1,2,5,99,x)), c(0008,1,2,5,99,0))
@@ -326,7 +378,7 @@ test_that("one-if-equal function updates array properly", {
 test_that("one-if-equal function moves pointer properly", {
   x <- sample.int(1000,1)
   one <- function(pointer, array) {
-    res <- day05_oneifequal(pointer, array, integer(), integer())
+    res <- day05_oneifequal(pointer, 0, array, integer(), integer())
     res$pointer
   }
   expect_equal(one(0,c(integer()     , 8,1,2,5,99,x)), 0+4)
@@ -356,7 +408,7 @@ test_that("jump tests works", {
   expect_equal(day05_diagnostic(input_buffer =  8, array = op_array), 1000)
   expect_equal(day05_diagnostic(input_buffer =  9, array = op_array), 1001)
   expect_equal(day05_diagnostic(input_buffer = 99, array = op_array), 1001)
-  
+
 })
 
 test_that("solution part 2 returns correct result", {

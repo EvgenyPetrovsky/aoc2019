@@ -6,6 +6,11 @@
 \usage{
 day10_dec_to_polar(station, asteroid)
 }
+\arguments{
+\item{station}{station coordinates}
+
+\item{asteroid}{asteroid coordinates}
+}
 \description{
 Transform coordinates from decart to polar system
 }

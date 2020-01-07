@@ -4,10 +4,12 @@
 \alias{day05_opoutput}
 \title{return result (print output)}
 \usage{
-day05_opoutput(pointer, array, in_buffer, out_buffer)
+day05_opoutput(pointer, base, array, in_buffer, out_buffer)
 }
 \arguments{
 \item{pointer}{current position of instruction}
+
+\item{base}{relative base of pointer for parameter mode 2}
 
 \item{array}{incode array}
 

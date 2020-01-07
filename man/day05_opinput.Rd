@@ -4,10 +4,12 @@
 \alias{day05_opinput}
 \title{read input}
 \usage{
-day05_opinput(pointer, array, in_buffer, out_buffer)
+day05_opinput(pointer, base, array, in_buffer, out_buffer)
 }
 \arguments{
 \item{pointer}{current position of instruction}
+
+\item{base}{relative base of pointer for parameter mode 2}
 
 \item{array}{incode array}
 
