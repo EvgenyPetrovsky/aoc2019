@@ -12,7 +12,7 @@ day10_identify_all <- function(asteroid_map_text) {
   for (row in 1:rows) {
     for (col in 1:cols) {
       if (substr(text[row], col, col) == "#") {
-        res <- c(res, list(c(row, col)))
+        res <- c(res, list(c(col, row) - 1))
       }
     }
   }
@@ -132,7 +132,7 @@ day10_locate_objects <- function(station, objects) {
 
   visible_objects <- 1:max_radius %>%
     Reduce(f = function(closer_objects, radius) {
-      obj <- 
+      obj <-
         radius %>%
         contour() %>%
         objects_on_contour() %>%
@@ -224,4 +224,62 @@ day10_identify_all_polar <- function(station, objects) {
     l
   }
   Reduce(f = nest, x = objects, init = list())
+}
+
+#' Sort all polar coordinates
+#'
+#' First by angle and then by distance
+#'
+#' @param polar coordinates
+day10_sort_polar <- function(polar) {
+  # function that sorts list
+  isort <- function(x) {n <- names(x); x[sort(n)]}
+  # sort list of lists (first nested and then nesting)
+  polar %>% Map(f = isort) %>% isort()
+}
+
+#' asteroid vaporization sequence
+#'
+#' @param station starion
+#' @param asteroids asteroids
+day10_vapor_seq <- function(station, asteroids) {
+
+  # remove asteroid with station from the list
+  asteroids <- asteroids %>%
+    Filter(f = function(x) all(x == station) != TRUE)
+
+  # get polar coordinates
+  polars <- station %>%
+    day10_identify_all_polar(asteroids) %>%
+    day10_sort_polar()
+
+  # flatten list with sublists
+  flattened <- names(polars) %>%
+    Reduce(f = function(z, x) {
+      nested_el <- polars[[x]]
+      nested_len <- length(nested_el)
+      names(nested_el) <- format(1:nested_len, width = 3) %>% paste0(".", x)
+      c(z, nested_el)
+    }, init = list())
+
+  # sort flattened list
+  flattened[sort(names(flattened))]
+
+}
+
+#' Day 10 part 2 solution
+#'
+#' @export
+day10_part2_solution <- function() {
+  text_map <- aoc19::DATASET$day10
+  asteroids <- day10_identify_all(text_map)
+  #counts <- asteroids %>%
+  #  Map(f = function(station) day10_locate_objects(station, asteroids)) %>%
+  #  Map(f = length)
+  #station <- asteroids[[which.max(counts)]]
+  station <- c(25, 31)
+
+  winner <- day10_vapor_seq(station, asteroids)[[200]]
+
+  winner[1]*100+winner[2]
 }

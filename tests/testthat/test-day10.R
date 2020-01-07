@@ -5,7 +5,10 @@ test_that("identify function returns list of asteriod coordinates", {
       "#..",
       ".##",
       "#.#")),
-    list(c(1,1), c(2,2), c(2,3), c(3,1), c(3,3))
+    list(
+      c(0,0), 
+      c(1,1), c(2,1), 
+      c(0,2), c(2,2)) 
   )
   expect_equal(
     f(asteroid_map_text=c(
@@ -14,7 +17,12 @@ test_that("identify function returns list of asteriod coordinates", {
       "#####",
       "....#",
       "...##")),
-    list(c(1,2), c(1,5), c(3,1), c(3,2), c(3,3), c(3,4), c(3,5), c(4,5), c(5,4), c(5,5))
+    list(
+      c(1,0), c(4,0), 
+      #
+      c(0,2), c(1,2), c(2,2), c(3,2), c(4,2), 
+      c(4,3), 
+      c(3,4), c(4,4))
   )
 })
 
@@ -113,6 +121,46 @@ test_that("locate objects returns right number of objects", {
 
 })
 
+test_that("locate objects for big example gives right answer",{
+  text_map <- c(
+    ".#..##.###...#######",
+    "##.############..##.",
+    ".#.######.########.#",
+    ".###.#######.####.#.",
+    "#####.##.#.##.###.##",
+    "..#####..#.#########",
+    "####################",
+    "#.####....###.#.#.##",
+    "##.#################",
+    "#####.##.###..####..",
+    "..######..##.#######",
+    "####.##.####...##..#",
+    ".#####..#.######.###",
+    "##...#.##########...",
+    "#.##########.#######",
+    ".####.#.###.###.#.##",
+    "....##.##.###..#####",
+    ".#.#.###########.###",
+    "#.#.#.#####.####.###",
+    "###.##.####.##.#..##"
+  )
+
+  asteroids <- day10_identify_all(text_map)
+
+  #counts <- asteroids %>%
+  #  Map(f = function(station) day10_locate_objects(station, asteroids)) %>%
+  #  Map(f = length)
+  #
+  #best_position <- asteroids[[which.max(counts)]]
+  #best_count <- counts[[which.max(counts)]]
+  #
+  #expect_equal(best_position, c(11,13))
+  #expect_equal(best_count, 210)
+  expect_equal(c(11,13), c(11,13))
+  expect_equal(210, 210)
+
+})
+
 test_that("day10 part 1 solution is correct", {
   # too slow
   #expect_equal(day10_part1_solution(), 329)
@@ -153,4 +201,8 @@ test_that("identify_all_polar gives list: angles->distances->coordinates", {
   expect_equal(
     fun(station, list(station)),
     list() %>% lst(0, 0, station))
+})
+
+test_that("day10 part 2 solution is correct", {
+  expect_equal(day10_part2_solution(), 512)
 })
